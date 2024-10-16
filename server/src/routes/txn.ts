@@ -13,7 +13,6 @@ try {
     const to = Number(req.userId); // User ID from AuthMiddleware
     const body = req.body;
 
-    // Validate the request body against the DepositSchema
     const parsedBody = DepositSchema.safeParse(body);
 
     if (!parsedBody.success) {
@@ -22,13 +21,11 @@ try {
         });
     }
 
-    // Extract the amount from the parsed body
     const { amount } = parsedBody.data;
 
     const prisma = getPrisma();
     const updatedAmount = amount*100;
 
-    // Update the user's balance by incrementing it with the deposit amount
     const updatedAccount = await prisma.account.update({
         where: {
             userId: to
@@ -40,14 +37,12 @@ try {
         }
     });
 
-    // Respond with the updated account details
     res.status(200).json({
         message: "Deposit successful",
         account: updatedAccount
     });
 
 } catch (e) {
-    // Handle errors (e.g., user not found, database issues)
     console.error(e);
     res.status(500).json({
         message: "Internal Server Error"
@@ -60,7 +55,6 @@ try {
     const from = Number(req.userId); // User ID from AuthMiddleware
     const body = req.body;
 
-    // Validate the request body against the TransferSchema
     const parsedBody = TransferSchema.safeParse(body);
 
     if (!parsedBody.success) {
@@ -74,7 +68,6 @@ try {
 
     const prisma = getPrisma();
 
-    // Check if the sender's balance is sufficient
     const senderAccount = await prisma.account.findFirst({
         where: {
             userId: from
@@ -93,7 +86,6 @@ try {
         });
     }
 
-    // Perform the transfer in a transaction to ensure atomicity
     const transferTransaction = await prisma.$transaction([
         prisma.account.update({
             where: { userId: from },
@@ -121,7 +113,6 @@ try {
         })
     ]);
 
-    // Respond with success
     res.status(200).json({
         message: "Transfer successful",
         transaction: transferTransaction
