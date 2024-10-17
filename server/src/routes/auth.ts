@@ -23,7 +23,6 @@ try {
         });
     }
 
-    // Initialize Prisma and find the user by email
     const prisma = getPrisma();
     const user = await prisma.user.findFirst({
         where: {
@@ -38,7 +37,6 @@ try {
         });
     }
 
-    // Compare the provided password with the stored hashed password
     const isPasswordValid = await bcrypt.compare(body.password, user.password);
     if (!isPasswordValid) {
         return res.status(401).json(
@@ -47,17 +45,15 @@ try {
         });
     }
 
-    // Generate a JWT token
     const token = jwt.sign(user.id.toString(),JWT_SECRET)    
     console.log(`User ${user.id} Signed in`);
-    // Return the token
     return res.status(200).json(
         {
         message: 'Signin successful',
         token,
         });
     } catch (e) {
-    console.error(e); // Log the error for debugging purposes
+    console.error(e);
     return res.status(500).json(
         {
         error: 'An error occurred during signin.',
@@ -68,10 +64,8 @@ try {
 
 router.post('/signup',async (req,res)=>{
 try{
-    // Parse the request body
     const body = req.body;
     
-    // Validate using zod
     const safe = SignupSchema.safeParse(body);
     if (!safe.success) {
         return res.status(411).json(
@@ -79,7 +73,6 @@ try{
             message: 'Incorrect credentials sent',
         });
     } 
-    // Store in db
     const prisma = getPrisma();
     
     const exists = await prisma.user.findFirst({
