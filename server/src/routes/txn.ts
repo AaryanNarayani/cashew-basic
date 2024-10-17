@@ -4,7 +4,7 @@ import { DepositSchema, TransferSchema } from '../types'
 import { getPrisma } from '../db'
 const router = express.Router()
 
-router.get('/',(req,res)=>{
+router.get('/',(_,res)=>{
     res.send("Welcome to txn")
 })
 
@@ -52,7 +52,7 @@ try {
 
 router.post('/transfer', AuthMiddleware, async (req: any, res) => {
 try {
-    const from = Number(req.userId); // User ID from AuthMiddleware
+    const from = Number(req.userId); 
     const body = req.body;
 
     const parsedBody = TransferSchema.safeParse(body);
@@ -119,7 +119,6 @@ try {
     });
 
 } catch (e) {
-    // Handle errors (e.g., user not found, database issues)
     console.error(e);
     res.status(500).json({
         message: "Internal Server Error "+e
